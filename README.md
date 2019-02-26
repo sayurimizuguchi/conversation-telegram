@@ -7,7 +7,9 @@ Watson assistant (formely Conversation) integrated with Telegram
 
 3. Install the packages: dotenv, express, watson-developer-cloud, node-telegram-bot-api.
 
-4. Rename the file .env.example with just: .env (Really important, if not, your bot won't work at all cause the app isn't search for your credentials inside the file.
+4. Rename the file .env.example with just: .env.
+
+Obs.: The 4 part is important, if not edited, the project won't work because the app isn't finding your credentials inside the file).
 
 
 
