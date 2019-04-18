@@ -24,6 +24,10 @@ Based project to understand how to integrate your Chatbot with Telegram.
    - watson-developer-cloud
    - node-telegram-bot-api
 
+#### 6. Make your bot work!
+ - On your Telegram app _search_ the bot that you have created and *add* as a contact.
+ - Send the command `/start` and try to send any message!
+
 
 ##### Note: Rename the file `.env.example` with `.env` for the Enviroment Variables be available to get.
 
