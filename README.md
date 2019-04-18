@@ -1,16 +1,31 @@
 # conversation-telegram
-Watson assistant (formely Conversation) integrated with Telegram
+Based project to understand how to integrate your Chatbot with Telegram.
 
-1. First, search on your Telegram app for @BotFather, following the pass ONE in this [site](https://developer.ibm.com/recipes/tutorials/how-to-create-a-watson-chatbot-on-nodered/)
+### Integrate Telegram with Watson Assistant.
 
-2. Save the TOKEN and add in the .env file or on the [#30](https://github.com/sayurimizuguchi/conversation-telegram/blob/master/app.js#L30)
+#### Steps: 
 
-3. Install the packages: dotenv, express, watson-developer-cloud, node-telegram-bot-api.
+#### 1. First, open your Telegram app, and search for @BotFather.
 
-4. Rename the file .env.example with just: .env.
+#### 2. Send a `/newbot` command message and:
+  - Enter your the name of your Chatbot
+  - Enter your Username:
+        * E.g: `WatsonChat<anyOtherNames>Bot` (Replace `<anyOtherNames>` with whatever you would like to)
+        
+#### 3. Once created, the @BotFather will give you an TOKEN, *save it*
 
-Obs.: The 4 part is important, if not edited, the project won't work because the app isn't finding your credentials inside the file).
+#### 4. Clone the repository and add your TOKEN/credentials.
+  - [Clone](https://github.com/sayurimizuguchi/conversation-telegram/archive/master.zip)
+  - Add the saved *TOKEN* in the `.env` file or replace the value on the lign [#30](https://github.com/sayurimizuguchi/conversation-telegram/blob/master/app.js#L30)
+
+#### 5. Run the command `npm install --save` and the required packages will be installed: 
+   - dotenv
+   - express
+   - watson-developer-cloud
+   - node-telegram-bot-api
 
 
+##### Note: Rename the file `.env.example` with `.env` for the Enviroment Variables be available to get.
 
-### Obs.: This code is based on [Renato Leal](https://gist.github.com/renatodossantosleal/a963eff0b3665326f975aabf19ab37ee) example, updating with Assistant and some releases from node telegram api
+
+###### Obs.: This code is based on [Renato Leal](https://gist.github.com/renatodossantosleal/a963eff0b3665326f975aabf19ab37ee) example, updating with Assistant and some releases from Node Telegram API.
