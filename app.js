@@ -1,51 +1,54 @@
 'use strict';
-
 require('dotenv').config({ silent: true });
 
-const port = 8080;
-
-//libraries
+// dependencies
 const express = require('express');
-const dotenv = require('dotenv');
-var AssistantV1 = require('watson-developer-cloud/assistant/v1');
-const tbot = require('node-telegram-bot-api');
+const botTelegram = require('node-telegram-bot-api');
+const AssistantV1 = require('ibm-watson/assistant/v1');
 
-var app = express();
+const server = express();
 
-//if u want to use some front-end webpage, save in the folder public
-app.use(express.static(__dirname + '/public'));
+/**
+ * Context object is useful to assistant cause continue the same conversation (conversation_id)
+ * Port is used when starting express server
+ */
+const port = 8080;
+let context = {}
 
-//Assistant, formely conversation
-var watsonAssistant = new AssistantV1({
-    username: 'conversation_username', //from service credentials
-    password: 'conversation_password', 
-    version: '2018-02-16',
-    url: 'https://gateway.watsonplatform.net/conversation/api'
+/**
+ * Insert your Credentials accordingly
+ * For enviroment variables work, you must edit the file .env.example to .env (README.MD)
+ */
+const wAssistant = new AssistantV1({
+	version: '2019-02-28',
+    username: process.env.ASSISTANT_USERNAME,
+    password: process.env.ASSISTANT_PASSWORD, 
+	url: process.env.WATSON_URL,
 });
+console.log(process.env)
+/**
+ * Initializing bot using your generated token on Telegram /botfather (README.MD)
+ */
+const telegram = new botTelegram(process.env.TOKEN_TELEGRAM, { polling: true });
 
-//context object for assistant continue the same conversation
-var context = {};
+telegram.on('message', (msg) => {
+	const chatId = msg.chat.id;	
+	console.log('message', msg.text);
 
-//TELEGRAM  and send message
-var telegram = new tbot(process.env.TOKEN_TELEGRAM, { polling: true });
-
-telegram.on('message', function(msg) {
-	var chatId = msg.chat.id;	
-	
-	watsonAssistant.message({
+	wAssistant.message({
 		workspace_id: process.env.WORKSPACE_ID,
 		input: {'text': msg.text},
 		context: context
-	},  function(err, response) {
+	},(err, response) => {
 		if (err)
 			console.log('error:', err);
 		else {
-			context = response.context; /* save the context from the first message, and send again in the next message above */
+			context = response.context;
 			telegram.sendMessage(chatId, response.output.text[0]);
 		}
 	});	
 });
 
-app.listen(port, function(req, res) {
-  console.log("server starting on port " + port);
+server.listen(port, function(req, res) {
+  console.log(`Use localhost:${port} on the browser to check the server`);
 });
