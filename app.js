@@ -4,51 +4,59 @@ require('dotenv').config({ silent: true });
 // dependencies
 const express = require('express');
 const botTelegram = require('node-telegram-bot-api');
-const AssistantV1 = require('ibm-watson/assistant/v1');
+const AssistantV2 = require('ibm-watson/assistant/v2');
+const { IamAuthenticator } = require('ibm-watson/auth');
 
-const server = express();
+const app = express();
 
 /**
- * Context object is useful to assistant cause continue the same conversation (conversation_id)
- * Port is used when starting express server
+ * Session id is returned from the createSession call, and used
+ * to send a message to the corresponding session
  */
-const port = 8080;
-let context = {}
+let sessionId = {}
 
 /**
  * Insert your Credentials accordingly
  * For enviroment variables work, you must edit the file .env.example to .env (README.MD)
  */
-const wAssistant = new AssistantV1({
-	version: '2019-02-28',
-    username: process.env.ASSISTANT_USERNAME,
-    password: process.env.ASSISTANT_PASSWORD, 
+const wAssistant = new AssistantV2({
+	authenticator: new IamAuthenticator({
+    apikey: process.env.SERVICE_API_KEY,
+  }),
+	version: process.env.WATSON_ASSISTANT_VERSION,
 	url: process.env.WATSON_URL,
+	disableSslVerification: true, // disable SSL
 });
-console.log(process.env)
+
+wAssistant.createSession({
+  assistantId: process.env.ASSISTANT_ID
+})
+  .then(res => sessionId = res.result.session_id)
+  .catch(err => {
+    console.log(err);
+  });
+
 /**
  * Initializing bot using your generated token on Telegram /botfather (README.MD)
  */
 const telegram = new botTelegram(process.env.TOKEN_TELEGRAM, { polling: true });
 
 telegram.on('message', (msg) => {
-	const chatId = msg.chat.id;	
+	const chatId = msg.chat.id;
 	console.log('message', msg.text);
 
 	wAssistant.message({
-		workspace_id: process.env.WORKSPACE_ID,
-		input: {'text': msg.text},
-		context: context
+		sessionId: sessionId,
+		assistantId: process.env.ASSISTANT_ID,
+		input: { message_type: 'text', text: msg.text},
 	},(err, response) => {
 		if (err)
 			console.log('error:', err);
 		else {
-			context = response.context;
-			telegram.sendMessage(chatId, response.output.text[0]);
+			const messageResponse = response.result.output.generic[0].text;
+			telegram.sendMessage(chatId, messageResponse);
 		}
-	});	
+	});
 });
 
-server.listen(port, function(req, res) {
-  console.log(`Use localhost:${port} on the browser to check the server`);
-});
+module.exports = app;
