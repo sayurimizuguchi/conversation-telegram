@@ -17,7 +17,8 @@ let sessionId = {}
 
 /**
  * Insert your Credentials accordingly
- * For enviroment variables work, you must edit the file .env.example to .env (README.MD)
+ * the project will work if you set your ENV variables correctly,
+ * you must edit the file .env.example to .env and switch your credentials (README.MD)
  */
 const wAssistant = new AssistantV2({
 	authenticator: new IamAuthenticator({
@@ -43,12 +44,14 @@ const telegram = new botTelegram(process.env.TOKEN_TELEGRAM, { polling: true });
 
 telegram.on('message', (msg) => {
 	const chatId = msg.chat.id;
-	console.log('message', msg.text);
 
 	wAssistant.message({
 		sessionId: sessionId,
 		assistantId: process.env.ASSISTANT_ID,
-		input: { message_type: 'text', text: msg.text},
+		input: {
+			message_type: 'text',
+			text: msg.text
+		},
 	},(err, response) => {
 		if (err)
 			console.log('error:', err);
