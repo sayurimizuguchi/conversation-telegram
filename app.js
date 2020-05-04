@@ -13,7 +13,7 @@ const app = express();
  * Session id is returned from the createSession call, and used
  * to send a message to the corresponding session
  */
-let sessionId = {}
+let sessionId = {};
 
 /**
  * Insert your Credentials accordingly
@@ -21,18 +21,19 @@ let sessionId = {}
  * you must edit the file .env.example to .env and switch your credentials (README.MD)
  */
 const wAssistant = new AssistantV2({
-	authenticator: new IamAuthenticator({
+  authenticator: new IamAuthenticator({
     apikey: process.env.SERVICE_API_KEY,
   }),
-	version: process.env.WATSON_ASSISTANT_VERSION,
-	url: process.env.WATSON_URL,
-	disableSslVerification: true, // disable SSL
+  version: process.env.WATSON_ASSISTANT_VERSION,
+  url: process.env.WATSON_URL,
+  disableSslVerification: true, // disable SSL
 });
 
-wAssistant.createSession({
-  assistantId: process.env.ASSISTANT_ID
-})
-  .then(res => sessionId = res.result.session_id)
+wAssistant
+  .createSession({
+    assistantId: process.env.ASSISTANT_ID,
+  })
+  .then(res => (sessionId = res.result.session_id))
   .catch(err => {
     console.log(err);
   });
@@ -42,24 +43,26 @@ wAssistant.createSession({
  */
 const telegram = new botTelegram(process.env.TOKEN_TELEGRAM, { polling: true });
 
-telegram.on('message', (msg) => {
-	const chatId = msg.chat.id;
+telegram.on('message', msg => {
+  const chatId = msg.chat.id;
 
-	wAssistant.message({
-		sessionId: sessionId,
-		assistantId: process.env.ASSISTANT_ID,
-		input: {
-			message_type: 'text',
-			text: msg.text
-		},
-	},(err, response) => {
-		if (err)
-			console.log('error:', err);
-		else {
-			const messageResponse = response.result.output.generic[0].text;
-			telegram.sendMessage(chatId, messageResponse);
-		}
-	});
+  wAssistant.message(
+    {
+      sessionId: sessionId,
+      assistantId: process.env.ASSISTANT_ID,
+      input: {
+        message_type: 'text',
+        text: msg.text,
+      },
+    },
+    (err, response) => {
+      if (err) console.log('error:', err);
+      else {
+        const messageResponse = response.result.output.generic[0].text;
+        telegram.sendMessage(chatId, messageResponse);
+      }
+    }
+  );
 });
 
 module.exports = app;
